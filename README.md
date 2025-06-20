@@ -2,6 +2,8 @@
 
 一个将 Markdown 文本转换为结构化 Python 对象的解析器，便于其他项目使用和处理 Markdown 文档。
 
+主要目的是验证解析流程。后续将核心处理逻辑迁移到前端，将 markdown 文档解析为对象，这样可以对文档进行交互式编辑(WYSIWYG What you see is what you get)，比如给表格加行，图片尺寸任意编辑，粘贴上传图片等。
+
 ## 特性
 
 - ✅ 支持标准 Markdown 语法
@@ -52,7 +54,7 @@ markdown_text = """
 ```python
 def hello():
     print("Hello, World!")
-```
+\```
 """
 
 document = parse(markdown_text)
@@ -95,7 +97,7 @@ markdown-parser/
 
 ```bash
 # 运行测试
-uv run pytest
+uv run python -m pytest tests/ -v
 
 # 运行示例
 uv run python examples/example.py
