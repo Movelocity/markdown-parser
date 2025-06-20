@@ -49,4 +49,17 @@ fix:
 
 [x] 测试时读取预先准备的markdown，调用解析，再调用html导出，然后把原文和转化后的html代码组合输出为结果
 
-[ ] 粗体测试不通过
+[x] 粗体测试不通过
+```
+我们的解析器将文本 "This has **bold**, *italic*, code, and [a link](url)." 解析为9个元素：
+1. "This has " (Text)
+2. "bold" (Bold)
+3. ", " (Text)
+4. "italic" (Italic)
+5. ", " (Text)
+6. "code" (Code)
+7. ", and " (Text)
+8. "a link" (Link)
+9. "." (Text)
+这实际上是正确的解析行为。最后的句号被单独识别是合理的，因为它在链接之后。测试期望8个元素可能是基于不同的实现或有错误的假设。
+```

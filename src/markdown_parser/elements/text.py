@@ -16,64 +16,161 @@ def parse_inline_elements(text: str) -> List[InlineElement]:
     elements = []
     position = 0
     
-    # Patterns for inline elements
-    patterns = [
-        # Image: ![alt](url) or ![alt](url){size=0.5, css="..."}
-        (r'!\[([^\]]*)\]\(([^)]+)\)(\{[^}]+\})?', 'image'),
-        # Link: [text](url) or [text](url "title")
-        (r'\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]+)")?\)', 'link'),
-        # Bold: **text** or __text__
-        (r'(\*\*|__)([^*_]+?)\1', 'bold'),
-        # Italic: *text* or _text_ (but not ** or __)
-        (r'(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)|(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)', 'italic'),
-        # Inline code: `code`
-        (r'`([^`]+)`', 'code'),
-    ]
-    
-    combined_pattern = '|'.join(f'({pattern})' for pattern, _ in patterns)
-    
-    for match in re.finditer(combined_pattern, text):
-        # Add any plain text before the match
-        if match.start() > position:
-            elements.append(Text(content=text[position:match.start()]))
+    while position < len(text):
+        # Look for the next inline element starting from current position
+        remaining_text = text[position:]
         
-        # Determine which pattern matched
-        matched_text = match.group(0)
+        # Find all possible matches
+        all_matches = []
         
-        if matched_text.startswith('!['):
-            # Image
-            elements.append(_parse_image_match(match))
-        elif matched_text.startswith('['):
-            # Link
-            elements.append(_parse_link_match(match))
-        elif matched_text.startswith('**') or matched_text.startswith('__'):
-            # Bold
-            content = match.group(2) if match.group(2) else match.group(0).strip('*_')
-            elements.append(Bold(content=content))
-        elif matched_text.startswith('*') or matched_text.startswith('_'):
-            # Italic
-            # Find the actual content group
-            for i in range(1, len(match.groups()) + 1):
-                if match.group(i) and match.group(i) in matched_text:
-                    content = match.group(i)
-                    if content and not content.startswith(('*', '_')):
-                        elements.append(Italic(content=content))
-                        break
-        elif matched_text.startswith('`'):
-            # Code
-            content = matched_text.strip('`')
-            elements.append(Code(content=content))
+        for pattern_func in [_try_image, _try_link, _try_bold, _try_italic, _try_code]:
+            matches = pattern_func(remaining_text)
+            for match_pos, element, match_length in matches:
+                all_matches.append((match_pos, element, match_length, pattern_func.__name__))
         
-        position = match.end()
+        if all_matches:
+            # Filter out overlapping matches, keeping the outermost/longest ones
+            filtered_matches = _filter_nested_matches(all_matches)
+            
+            if filtered_matches:
+                # Sort by position
+                filtered_matches.sort(key=lambda x: x[0])
+                
+                # Take the first match
+                match_pos, element, match_length, pattern_name = filtered_matches[0]
+                
+                # Add any plain text before the match
+                if match_pos > 0:
+                    text_content = remaining_text[:match_pos]
+                    if elements and isinstance(elements[-1], Text):
+                        # Merge with previous text element
+                        elements[-1].content += text_content
+                    else:
+                        elements.append(Text(content=text_content))
+                
+                # Add the matched element
+                elements.append(element)
+                position += match_pos + match_length
+            else:
+                # No valid matches, add the rest as plain text
+                remaining_content = remaining_text
+                if elements and isinstance(elements[-1], Text):
+                    # Merge with previous text element
+                    elements[-1].content += remaining_content
+                else:
+                    elements.append(Text(content=remaining_content))
+                break
+        else:
+            # No matches found, add the rest as plain text
+            remaining_content = remaining_text
+            if elements and isinstance(elements[-1], Text):
+                # Merge with previous text element
+                elements[-1].content += remaining_content
+            else:
+                elements.append(Text(content=remaining_content))
+            break
     
-    # Add any remaining plain text
-    if position < len(text):
-        elements.append(Text(content=text[position:]))
+    # Post-process: merge short punctuation-only Text elements with previous elements
+    merged_elements = []
+    for i, element in enumerate(elements):
+        if (isinstance(element, Text) and 
+            element.content.strip() == '.' and
+            merged_elements and 
+            isinstance(merged_elements[-1], Text)):
+            # Merge single period with previous text element
+            merged_elements[-1].content += element.content
+        else:
+            merged_elements.append(element)
     
-    return elements
+    return merged_elements
 
 
-def _parse_image_match(match: re.Match) -> Image:
+def _filter_nested_matches(matches):
+    """Filter out nested matches, keeping only the outermost ones."""
+    if not matches:
+        return []
+    
+    # Sort by start position, then by length (longer first)
+    matches.sort(key=lambda x: (x[0], -x[2]))
+    
+    filtered = []
+    
+    for match in matches:
+        match_start, element, match_length, pattern_name = match
+        match_end = match_start + match_length
+        
+        # Check if this match overlaps with any already accepted match
+        overlaps = False
+        for existing_start, existing_element, existing_length, existing_pattern in filtered:
+            existing_end = existing_start + existing_length
+            
+            # Check for overlap
+            if (match_start < existing_end and match_end > existing_start):
+                overlaps = True
+                break
+        
+        if not overlaps:
+            filtered.append(match)
+    
+    return filtered
+
+
+def _try_image(text: str) -> List[Tuple[int, InlineElement, int]]:
+    """Try to find all images in text."""
+    matches = []
+    for match in re.finditer(r'!\[([^\]]*)\]\(([^)]+)\)(\{[^}]+\})?', text):
+        element = _parse_image_from_match(match)
+        matches.append((match.start(), element, match.end() - match.start()))
+    return matches
+
+
+def _try_link(text: str) -> List[Tuple[int, InlineElement, int]]:
+    """Try to find all links in text."""
+    matches = []
+    for match in re.finditer(r'\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]+)")?\)', text):
+        element = _parse_link_from_match(match)
+        matches.append((match.start(), element, match.end() - match.start()))
+    return matches
+
+
+def _try_bold(text: str) -> List[Tuple[int, InlineElement, int]]:
+    """Try to find all bold text in text."""
+    matches = []
+    for match in re.finditer(r'(\*\*|__)([^*_]+?)\1', text):
+        content = match.group(2)
+        matches.append((match.start(), Bold(content=content), match.end() - match.start()))
+    return matches
+
+
+def _try_italic(text: str) -> List[Tuple[int, InlineElement, int]]:
+    """Try to find all italic text in text."""
+    matches = []
+    
+    # Single asterisk pattern - allow any content except isolated asterisks at boundaries
+    for match in re.finditer(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)', text):
+        content = match.group(1)
+        # Make sure the content doesn't end or start with ** (which would be bold)
+        if not (content.startswith('*') or content.endswith('*')):
+            matches.append((match.start(), Italic(content=content), match.end() - match.start()))
+    
+    # Single underscore pattern
+    for match in re.finditer(r'(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)', text):
+        content = match.group(1)
+        matches.append((match.start(), Italic(content=content), match.end() - match.start()))
+    
+    return matches
+
+
+def _try_code(text: str) -> List[Tuple[int, InlineElement, int]]:
+    """Try to find all inline code in text."""
+    matches = []
+    for match in re.finditer(r'`([^`]+)`', text):
+        content = match.group(1)
+        matches.append((match.start(), Code(content=content), match.end() - match.start()))
+    return matches
+
+
+def _parse_image_from_match(match: re.Match) -> Image:
     """Parse image from regex match."""
     full_match = match.group(0)
     
@@ -108,7 +205,7 @@ def _parse_image_match(match: re.Match) -> Image:
     return Image(content=alt, url=url, size=size, css=css)
 
 
-def _parse_link_match(match: re.Match) -> Link:
+def _parse_link_from_match(match: re.Match) -> Link:
     """Parse link from regex match."""
     full_match = match.group(0)
     

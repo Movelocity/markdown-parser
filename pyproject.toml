@@ -32,3 +32,15 @@ target-version = ["py312"]
 line-length = 88
 select = ["E", "F", "I", "N", "W"]
 target-version = "py312"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[dependency-groups]
+dev = [
+    "black",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]

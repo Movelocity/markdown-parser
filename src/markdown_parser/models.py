@@ -102,18 +102,18 @@ class Heading(BlockElement):
     """Heading element."""
     type: ElementType = ElementType.HEADING
     level: int = Field(ge=1, le=6)
-    content: List[InlineElement]
+    content: list[InlineElement]
 
 
 class Paragraph(BlockElement):
     """Paragraph element."""
     type: ElementType = ElementType.PARAGRAPH
-    content: List[InlineElement]
+    content: list[InlineElement]
 
 
 class ListItem(BaseModel):
     """List item."""
-    content: List[Union[InlineElement, "ListElement"]]
+    content: list[Union[InlineElement, "ListElement"]]
     indent_level: int = 0
 
 
@@ -121,14 +121,14 @@ class ListElement(BlockElement):
     """List element (ordered or unordered)."""
     type: ElementType = ElementType.LIST
     ordered: bool
-    items: List[ListItem]
+    items: list[ListItem]
     start_number: Optional[int] = None  # For ordered lists
 
 
 class Quote(BlockElement):
     """Quote block element."""
     type: ElementType = ElementType.QUOTE
-    content: List[Union[BlockElement, InlineElement]]
+    content: list[Union[BlockElement, InlineElement]]
     level: int = Field(default=1, ge=1)
 
 
@@ -142,21 +142,21 @@ class CodeBlock(BlockElement):
 
 class TableCell(BaseModel):
     """Table cell."""
-    content: List[InlineElement]
+    content: list[InlineElement]
     alignment: Optional[str] = None  # left, center, right
 
 
 class TableRow(BaseModel):
     """Table row."""
-    cells: List[TableCell]
+    cells: list[TableCell]
 
 
 class Table(BlockElement):
     """Table element."""
     type: ElementType = ElementType.TABLE
     header: TableRow
-    alignments: List[Optional[str]]  # Alignment for each column
-    rows: List[TableRow]
+    alignments: list[Optional[str]]  # Alignment for each column
+    rows: list[TableRow]
 
 
 class HorizontalRule(BlockElement):
@@ -168,16 +168,19 @@ class Align(BlockElement):
     """Custom alignment element."""
     type: ElementType = ElementType.ALIGN
     alignment: AlignType
-    content: List[Union[BlockElement, InlineElement]]
+    content: list[Union[BlockElement, InlineElement]]
 
 
 class Document(BaseModel):
     """The complete markdown document."""
-    blocks: List[BlockElement]
+    blocks: list[BlockElement]
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 # Update forward references
 ListItem.model_rebuild()
 Quote.model_rebuild()
-Align.model_rebuild() 
+Align.model_rebuild()
+
+# Aliases for backward compatibility
+List = ListElement 
