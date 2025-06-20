@@ -4,6 +4,7 @@ import re
 from typing import List, Optional, Tuple
 from ..models import Quote, BlockElement
 from .text import parse_inline_elements
+from ..regex_patterns import remove_quote_prefix
 
 
 def parse_quote(lines: List[str], start_idx: int) -> Optional[Tuple[Quote, int]]:
@@ -59,7 +60,7 @@ def parse_quote(lines: List[str], start_idx: int) -> Optional[Tuple[Quote, int]]
         # Remove quote markers
         processed_line = line
         for _ in range(level):
-            processed_line = re.sub(r'^\s*>\s?', '', processed_line, count=1)
+            processed_line = remove_quote_prefix(processed_line, count=1)
         content_lines.append(processed_line)
     
     # Parse content recursively (quotes can contain other blocks)

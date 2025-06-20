@@ -12,6 +12,9 @@ from .elements import (
     parse_align,
     parse_inline_elements,
 )
+from .regex_patterns import (
+    is_indented_line, is_list_item, is_custom_tag
+)
 
 
 def parse(markdown_text: str) -> Document:
@@ -124,9 +127,9 @@ def _parse_paragraph(lines: List[str], start_idx: int) -> tuple[Optional[Paragra
             parse_heading(line) or
             line.strip().startswith('>') or
             line.strip().startswith('```') or
-            re.match(r'^(    |\t)', line) or
-            re.match(r'^<(Align|Left|Center|Right)', line, re.IGNORECASE) or
-            _could_be_list_item(line) or
+            is_indented_line(line) or
+            is_custom_tag(line) or
+            is_list_item(line) or
             _could_be_table_start(lines, i)):
             break
         
@@ -175,15 +178,7 @@ def _is_horizontal_rule(line: str) -> bool:
 
 def _could_be_list_item(line: str) -> bool:
     """Check if a line could be the start of a list."""
-    # Unordered list markers
-    if re.match(r'^\s*[-*+]\s+', line):
-        return True
-    
-    # Ordered list markers
-    if re.match(r'^\s*\d+[.)]\s+', line):
-        return True
-    
-    return False
+    return is_list_item(line)
 
 
 def _could_be_table_start(lines: List[str], idx: int) -> bool:

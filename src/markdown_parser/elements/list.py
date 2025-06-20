@@ -4,6 +4,7 @@ import re
 from typing import List, Optional, Tuple
 from ..models import ListElement, ListItem
 from .text import parse_inline_elements
+from ..regex_patterns import UNORDERED_LIST_PATTERN, ORDERED_LIST_PATTERN
 
 
 def parse_list(lines: List[str], start_idx: int) -> Optional[Tuple[ListElement, int]]:
@@ -64,7 +65,7 @@ def parse_list(lines: List[str], start_idx: int) -> Optional[Tuple[ListElement, 
 def _match_list_item(line: str) -> Optional[dict]:
     """Match a list item and return its properties."""
     # Unordered list: -, *, or +
-    unordered_match = re.match(r'^(\s*)([-*+])\s+(.*)$', line)
+    unordered_match = UNORDERED_LIST_PATTERN.match(line)
     if unordered_match:
         return {
             'ordered': False,
@@ -74,7 +75,7 @@ def _match_list_item(line: str) -> Optional[dict]:
         }
     
     # Ordered list: 1. or 1)
-    ordered_match = re.match(r'^(\s*)(\d+)([.)])\s+(.*)$', line)
+    ordered_match = ORDERED_LIST_PATTERN.match(line)
     if ordered_match:
         return {
             'ordered': True,

@@ -3,6 +3,10 @@
 import re
 from typing import List, Optional, Tuple
 from ..models import CodeBlock
+from ..regex_patterns import (
+    CODE_FENCE_START_PATTERN, CODE_FENCE_END_PATTERN,
+    CODE_INDENT_PATTERN, CODE_INDENT_CAPTURE_PATTERN
+)
 
 
 def parse_code_block(lines: List[str], start_idx: int) -> Optional[Tuple[CodeBlock, int]]:
@@ -17,12 +21,12 @@ def parse_code_block(lines: List[str], start_idx: int) -> Optional[Tuple[CodeBlo
     first_line = lines[start_idx]
     
     # Check for fenced code block
-    fence_match = re.match(r'^```(\w+)?\s*(.*)$', first_line)
+    fence_match = CODE_FENCE_START_PATTERN.match(first_line)
     if fence_match:
         return _parse_fenced_code_block(lines, start_idx, fence_match)
     
     # Check for indented code block (4 spaces or 1 tab)
-    if re.match(r'^(    |\t)', first_line):
+    if CODE_INDENT_PATTERN.match(first_line):
         return _parse_indented_code_block(lines, start_idx)
     
     return None
@@ -46,7 +50,7 @@ def _parse_fenced_code_block(lines: List[str], start_idx: int, fence_match: re.M
         line = lines[current_idx]
         
         # Check for closing fence
-        if re.match(r'^```\s*$', line):
+        if CODE_FENCE_END_PATTERN.match(line):
             current_idx += 1
             break
         
@@ -78,14 +82,14 @@ def _parse_indented_code_block(lines: List[str], start_idx: int) -> Optional[Tup
             # Check if next line is still indented
             if current_idx + 1 < len(lines):
                 next_line = lines[current_idx + 1]
-                if re.match(r'^(    |\t)', next_line):
+                if CODE_INDENT_PATTERN.match(next_line):
                     code_lines.append('')
                     current_idx += 1
                     continue
             break
         
         # Check if line is indented
-        indent_match = re.match(r'^(    |\t)(.*)$', line)
+        indent_match = CODE_INDENT_CAPTURE_PATTERN.match(line)
         if indent_match:
             # Remove the indentation
             code_lines.append(indent_match.group(2).rstrip())

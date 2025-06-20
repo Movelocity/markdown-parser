@@ -4,6 +4,7 @@ import re
 from typing import Optional
 from ..models import Heading
 from .text import parse_inline_elements
+from ..regex_patterns import HEADING_PATTERN, HEADING_TRAILING_HASH_PATTERN
 
 
 def parse_heading(line: str) -> Optional[Heading]:
@@ -12,7 +13,7 @@ def parse_heading(line: str) -> Optional[Heading]:
     Supports ATX-style headings (# Heading).
     """
     # Match heading pattern: 1-6 # followed by space and content
-    match = re.match(r'^(#{1,6})\s+(.+)$', line.strip())
+    match = HEADING_PATTERN.match(line.strip())
     
     if not match:
         return None
@@ -21,7 +22,7 @@ def parse_heading(line: str) -> Optional[Heading]:
     content_text = match.group(2).strip()
     
     # Remove trailing # if present (optional in markdown)
-    content_text = re.sub(r'\s*#+\s*$', '', content_text)
+    content_text = HEADING_TRAILING_HASH_PATTERN.sub('', content_text)
     
     # Parse inline elements in the heading
     content = parse_inline_elements(content_text)

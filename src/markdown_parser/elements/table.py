@@ -4,6 +4,7 @@ import re
 from typing import List, Optional, Tuple
 from ..models import Table, TableRow, TableCell
 from .text import parse_inline_elements
+from ..regex_patterns import TABLE_SEPARATOR_PATTERN
 
 
 def parse_table(lines: List[str], start_idx: int) -> Optional[Tuple[Table, int]]:
@@ -140,7 +141,7 @@ def is_separator_line(line: str, expected_columns: Optional[int] = None) -> bool
     # Verify each part is a valid separator
     for part in parts:
         clean_part = part.strip().replace(' ', '')
-        if not re.match(r'^:?-{3,}:?$', clean_part):
+        if not TABLE_SEPARATOR_PATTERN.match(clean_part):
             return False
     
     return True

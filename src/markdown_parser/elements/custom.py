@@ -4,6 +4,7 @@ import re
 from typing import List, Optional, Tuple
 from ..models import Align, AlignType, BlockElement, InlineElement
 from .text import parse_inline_elements
+from ..regex_patterns import ALIGN_TAG_PATTERN
 
 
 def parse_align(lines: List[str], start_idx: int) -> Optional[Tuple[Align, int]]:
@@ -20,8 +21,7 @@ def parse_align(lines: List[str], start_idx: int) -> Optional[Tuple[Align, int]]
     first_line = lines[start_idx]
     
     # Check for align tag with required alignment attribute
-    align_match = re.match(r'^<Align\s+(left|center|right)>(.*)$', 
-                          first_line.strip(), re.IGNORECASE)
+    align_match = ALIGN_TAG_PATTERN.match(first_line.strip())
     
     if not align_match:
         return None

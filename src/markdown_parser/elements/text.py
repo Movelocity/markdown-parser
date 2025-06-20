@@ -3,6 +3,12 @@
 import re
 from typing import List, Tuple, Optional
 from ..models import InlineElement, Text, Bold, Italic, Code, Link, Image
+from ..regex_patterns import (
+    IMAGE_PATTERN, LINK_PATTERN, BOLD_PATTERN, 
+    ITALIC_ASTERISK_PATTERN, ITALIC_UNDERSCORE_PATTERN, INLINE_CODE_PATTERN,
+    IMAGE_FULL_PATTERN, IMAGE_SIZE_ATTR_PATTERN, IMAGE_CSS_ATTR_PATTERN,
+    LINK_FULL_PATTERN
+)
 
 
 def parse_inline_elements(text: str) -> List[InlineElement]:
@@ -118,7 +124,7 @@ def _filter_nested_matches(matches):
 def _try_image(text: str) -> List[Tuple[int, InlineElement, int]]:
     """Try to find all images in text."""
     matches = []
-    for match in re.finditer(r'!\[([^\]]*)\]\(([^)]+)\)(\{[^}]+\})?', text):
+    for match in IMAGE_PATTERN.finditer(text):
         element = _parse_image_from_match(match)
         matches.append((match.start(), element, match.end() - match.start()))
     return matches
@@ -127,7 +133,7 @@ def _try_image(text: str) -> List[Tuple[int, InlineElement, int]]:
 def _try_link(text: str) -> List[Tuple[int, InlineElement, int]]:
     """Try to find all links in text."""
     matches = []
-    for match in re.finditer(r'\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]+)")?\)', text):
+    for match in LINK_PATTERN.finditer(text):
         element = _parse_link_from_match(match)
         matches.append((match.start(), element, match.end() - match.start()))
     return matches
@@ -136,7 +142,7 @@ def _try_link(text: str) -> List[Tuple[int, InlineElement, int]]:
 def _try_bold(text: str) -> List[Tuple[int, InlineElement, int]]:
     """Try to find all bold text in text."""
     matches = []
-    for match in re.finditer(r'(\*\*|__)([^*_]+?)\1', text):
+    for match in BOLD_PATTERN.finditer(text):
         content = match.group(2)
         matches.append((match.start(), Bold(content=content), match.end() - match.start()))
     return matches
@@ -147,14 +153,14 @@ def _try_italic(text: str) -> List[Tuple[int, InlineElement, int]]:
     matches = []
     
     # Single asterisk pattern - allow any content except isolated asterisks at boundaries
-    for match in re.finditer(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)', text):
+    for match in ITALIC_ASTERISK_PATTERN.finditer(text):
         content = match.group(1)
         # Make sure the content doesn't end or start with ** (which would be bold)
         if not (content.startswith('*') or content.endswith('*')):
             matches.append((match.start(), Italic(content=content), match.end() - match.start()))
     
     # Single underscore pattern
-    for match in re.finditer(r'(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)', text):
+    for match in ITALIC_UNDERSCORE_PATTERN.finditer(text):
         content = match.group(1)
         matches.append((match.start(), Italic(content=content), match.end() - match.start()))
     
@@ -164,7 +170,7 @@ def _try_italic(text: str) -> List[Tuple[int, InlineElement, int]]:
 def _try_code(text: str) -> List[Tuple[int, InlineElement, int]]:
     """Try to find all inline code in text."""
     matches = []
-    for match in re.finditer(r'`([^`]+)`', text):
+    for match in INLINE_CODE_PATTERN.finditer(text):
         content = match.group(1)
         matches.append((match.start(), Code(content=content), match.end() - match.start()))
     return matches
@@ -175,7 +181,7 @@ def _parse_image_from_match(match: re.Match) -> Image:
     full_match = match.group(0)
     
     # Extract basic image parts
-    img_match = re.match(r'!\[([^\]]*)\]\(([^)]+)\)(\{[^}]+\})?', full_match)
+    img_match = IMAGE_FULL_PATTERN.match(full_match)
     if not img_match:
         return Image(content="", url="")
     
@@ -189,7 +195,7 @@ def _parse_image_from_match(match: re.Match) -> Image:
     
     if attrs:
         # Parse size attribute
-        size_match = re.search(r'size\s*=\s*([0-9.]+)', attrs)
+        size_match = IMAGE_SIZE_ATTR_PATTERN.search(attrs)
         if size_match:
             try:
                 size = float(size_match.group(1))
@@ -198,7 +204,7 @@ def _parse_image_from_match(match: re.Match) -> Image:
                 pass
         
         # Parse css attribute
-        css_match = re.search(r'css\s*=\s*"([^"]+)"', attrs)
+        css_match = IMAGE_CSS_ATTR_PATTERN.search(attrs)
         if css_match:
             css = css_match.group(1)
     
@@ -210,7 +216,7 @@ def _parse_link_from_match(match: re.Match) -> Link:
     full_match = match.group(0)
     
     # Extract link parts
-    link_match = re.match(r'\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]+)")?\)', full_match)
+    link_match = LINK_FULL_PATTERN.match(full_match)
     if not link_match:
         return Link(content="", url="")
     

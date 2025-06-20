@@ -3,6 +3,10 @@
 import re
 from typing import Optional
 from ..models import Link, Image
+from ..regex_patterns import (
+    LINK_FULL_PATTERN, IMAGE_FULL_PATTERN,
+    IMAGE_SIZE_ATTR_PATTERN, IMAGE_CSS_ATTR_PATTERN
+)
 
 
 def parse_link(text: str) -> Optional[Link]:
@@ -10,7 +14,7 @@ def parse_link(text: str) -> Optional[Link]:
     
     Format: [text](url) or [text](url "title")
     """
-    match = re.match(r'^\[([^\]]+)\]\(([^)]+?)(?:\s+"([^"]+)")?\)$', text.strip())
+    match = LINK_FULL_PATTERN.match(text.strip())
     if not match:
         return None
     
@@ -26,7 +30,7 @@ def parse_image(text: str) -> Optional[Image]:
     
     Format: ![alt](url) or ![alt](url){size=0.5, css="..."}
     """
-    match = re.match(r'^!\[([^\]]*)\]\(([^)]+)\)(\{[^}]+\})?$', text.strip())
+    match = IMAGE_FULL_PATTERN.match(text.strip())
     if not match:
         return None
     
@@ -40,7 +44,7 @@ def parse_image(text: str) -> Optional[Image]:
     
     if attrs:
         # Parse size attribute
-        size_match = re.search(r'size\s*=\s*([0-9.]+)', attrs)
+        size_match = IMAGE_SIZE_ATTR_PATTERN.search(attrs)
         if size_match:
             try:
                 size = float(size_match.group(1))
@@ -49,7 +53,7 @@ def parse_image(text: str) -> Optional[Image]:
                 pass
         
         # Parse css attribute
-        css_match = re.search(r'css\s*=\s*"([^"]+)"', attrs)
+        css_match = IMAGE_CSS_ATTR_PATTERN.search(attrs)
         if css_match:
             css = css_match.group(1)
     
