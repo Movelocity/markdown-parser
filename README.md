@@ -1,6 +1,6 @@
 # Markdown Parser
 
-一个将 Markdown 文本转换为结构化 Python 对象的解析器，便于其他项目使用和处理 Markdown 文档。
+一个将 Markdown 文本转换为结构化 Python 对象的解析器。目的是让其他项目能轻松使用和处理 Markdown 文档，并且能够在一定程度上自定义扩展语法。
 
 主要目的是验证解析流程。后续将核心处理逻辑迁移到前端，将 markdown 文档解析为对象，这样可以对文档进行交互式编辑(WYSIWYG What you see is what you get)，比如给表格加行，图片尺寸任意编辑，粘贴上传图片等。
 
