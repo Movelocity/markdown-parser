@@ -11,40 +11,29 @@ def parse_align(lines: List[str], start_idx: int) -> Optional[Tuple[Align, int]]
     
     Formats:
     - <Align center>content</Align>
-    - <Left>content</Left>
-    - <Center>content</Center>
-    - <Right>content</Right>
+    - <Align left>content</Align>
+    - <Align right>content</Align>
     """
     if start_idx >= len(lines):
         return None
     
     first_line = lines[start_idx]
     
-    # Check for align tag
-    align_match = re.match(r'^<(Align|Left|Center|Right)(?:\s+(left|center|right))?>(.*)$', 
+    # Check for align tag with required alignment attribute
+    align_match = re.match(r'^<Align\s+(left|center|right)>(.*)$', 
                           first_line.strip(), re.IGNORECASE)
     
     if not align_match:
         return None
     
-    tag_name = align_match.group(1).lower()
-    align_attr = align_match.group(2)
-    remaining_content = align_match.group(3)
+    align_attr = align_match.group(1).lower()
+    remaining_content = align_match.group(2)
     
     # Determine alignment
-    if tag_name == 'left':
-        alignment = AlignType.LEFT
-    elif tag_name == 'center':
-        alignment = AlignType.CENTER
-    elif tag_name == 'right':
-        alignment = AlignType.RIGHT
-    elif tag_name == 'align' and align_attr:
-        alignment = AlignType(align_attr.lower())
-    else:
-        return None
+    alignment = AlignType(align_attr)
     
     # Check if closing tag is on the same line
-    closing_pattern = f'</{tag_name}>'
+    closing_pattern = '</Align>'
     if closing_pattern.lower() in remaining_content.lower():
         # Single line align
         content_match = re.search(f'^(.*?){re.escape(closing_pattern)}', 

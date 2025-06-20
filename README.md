@@ -18,7 +18,7 @@
 - ✅ 扩展语法支持
   - 图片尺寸和样式：`![alt](url){size=0.5, css="border-radius: 10px;"}`
   - 代码块标题：````python filename.py`
-  - 自定义对齐：`<Center>居中内容</Center>`、`<Left>`、`<Right>`、`<Align center>`
+  - 自定义对齐：`<Align center>居中内容</Align>`、`<Align left>`、`<Aligh right>`、`<Align center>`
 
 - ✅ 导出功能
   - 导出纯 Markdown（不含扩展语法）

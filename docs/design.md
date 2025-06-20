@@ -58,8 +58,8 @@ code here
 #### 3.3 对齐标签
 ```markdown
 <Align center>内容</Align>
-<Left>左对齐</Left>
-<Right>右对齐</Right>
+<Align left>左对齐</Align>
+<Align right>右对齐</Align>
 ```
 
 ### 4. 设计原则
