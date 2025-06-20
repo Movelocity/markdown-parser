@@ -1,7 +1,7 @@
 """Markdown parser package."""
 
 from .parser import parse
-from .exporter import export_markdown
+from .exporter import export_markdown, export_html
 from .models import (
     Document,
     Element,
@@ -33,6 +33,7 @@ __version__ = "0.1.0"
 __all__ = [
     "parse",
     "export_markdown",
+    "export_html",
     "Document",
     "Element",
     "BlockElement",

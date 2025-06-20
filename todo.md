@@ -31,8 +31,6 @@
 [x] <Align center>abc</Align> 内容居中，同理还有 <Left></Left> <Right></Right>
 [x] export 支持导出不带额外标记内容的纯markdown文档
 
-[x] 完整的测试用例
-
 fix:
 [x] <Left></Left> <Right></Right> 需求错误，改为<Align left></Align> <Align right></Align> 
 
@@ -45,3 +43,7 @@ fix:
 [x] 导出时可选择是否包含扩展语法
 [x] 链接标题支持 [text](url "title")
 [x] 多种对齐标签格式: <Align left/center/right>
+
+[x] 增加几个markdown文件用于测试
+[x] 增加基于Document导出 HTML 的功能
+[x] 测试时读取预先准备的markdown，调用解析，再调用html导出，然后把原文和转化后的html代码组合输出为结果

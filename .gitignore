@@ -9,3 +9,4 @@ wheels/
 # Virtual environments
 .venv
 archive
+tests/test_files/*.html
