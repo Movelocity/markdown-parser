@@ -2,7 +2,7 @@
 
 import re
 from typing import List, Optional, Tuple
-from ..models import List as ListElement, ListItem
+from ..models import ListElement, ListItem
 from .text import parse_inline_elements
 
 

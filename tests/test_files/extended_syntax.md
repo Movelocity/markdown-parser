@@ -20,11 +20,11 @@ console.log(message);
 
 ## 扩展图片语法
 
-![普通图片](https://example.com/normal.png)
+![普通图片](bee.jpeg)
 
-![调整大小的图片](https://example.com/resized.png){size=0.5}
+![调整大小的图片](bee.jpeg){size=0.5}
 
-![带样式的图片](https://example.com/styled.png){size=0.8, css="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"}
+![带样式的图片](bee.jpeg){size=0.8, css="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"}
 
 ## 对齐标签
 

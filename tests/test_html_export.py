@@ -12,7 +12,8 @@ def test_html_export():
     test_files = [
         "basic_syntax.md",
         "extended_syntax.md", 
-        "complex_document.md"
+        "complex_document.md",
+        "index.md"
     ]
     
     print("=" * 80)

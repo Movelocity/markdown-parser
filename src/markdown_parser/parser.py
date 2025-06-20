@@ -45,43 +45,44 @@ def _parse_blocks(lines: List[str]) -> List[BlockElement]:
         next_i = i + 1
         
         # Custom align tags
-        align_result = parse_align(lines, i)
-        if align_result:
-            block, next_i = align_result
+        if not block:
+            align_result = parse_align(lines, i)
+            if align_result:
+                block, next_i = align_result
         
         # Code block
-        elif not block:
+        if not block:
             code_result = parse_code_block(lines, i)
             if code_result:
                 block, next_i = code_result
         
         # Heading
-        elif not block:
+        if not block:
             heading = parse_heading(lines[i])
             if heading:
                 block = heading
                 next_i = i + 1
         
         # Horizontal rule
-        elif not block:
+        if not block:
             if _is_horizontal_rule(lines[i]):
                 block = HorizontalRule()
                 next_i = i + 1
         
         # Table
-        elif not block:
+        if not block:
             table_result = parse_table(lines, i)
             if table_result:
                 block, next_i = table_result
         
         # List
-        elif not block:
+        if not block:
             list_result = parse_list(lines, i)
             if list_result:
                 block, next_i = list_result
         
         # Quote
-        elif not block:
+        if not block:
             quote_result = parse_quote(lines, i)
             if quote_result:
                 block, next_i = quote_result

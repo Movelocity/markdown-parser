@@ -10,3 +10,6 @@ wheels/
 .venv
 archive
 tests/test_files/*.html
+tests/test_files/*.jpeg
+
+.DS_Store

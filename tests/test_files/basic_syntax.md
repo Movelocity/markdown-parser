@@ -51,4 +51,4 @@ def hello_world():
 
 ## 图片
 
-![示例图片](https://example.com/image.png "图片标题")
+![示例图片](bee.jpeg)

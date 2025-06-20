@@ -53,17 +53,17 @@ print(html)
 
 支持不同尺寸的图片：
 
-![小图片](https://example.com/small.png){size=0.3, css="float: left; margin-right: 10px;"}
+![小图片](bee.jpeg){size=0.3, css="float: left; margin-right: 10px;"}
 
-![大图片](https://example.com/large.png){size=0.9}
+![大图片](bee.jpeg){size=0.9}
 
 ### 文本对齐
 
-<Center>
+<Align center>
 **居中的重要声明**
 
 这是一个居中显示的重要内容。
-</Center>
+</Align>
 
 <Align right>
 *右对齐的注释*

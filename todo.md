@@ -46,4 +46,7 @@ fix:
 
 [x] 增加几个markdown文件用于测试
 [x] 增加基于Document导出 HTML 的功能
+
 [x] 测试时读取预先准备的markdown，调用解析，再调用html导出，然后把原文和转化后的html代码组合输出为结果
+
+[ ] 粗体测试不通过
