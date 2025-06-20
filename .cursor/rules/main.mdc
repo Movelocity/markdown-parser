@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+项目规范: 
+- 使用 uv 运行python代码
+- 合理模块化
+- 测试代码与核心代码分离
+- 文档和方案先于代码
+
+run test: uv run python -m pytest tests/ -v

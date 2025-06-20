@@ -104,7 +104,7 @@ class TestTextParsing:
         text = "This has **bold**, *italic*, `code`, and [a link](url)."
         elements = parse_inline_elements(text)
         
-        assert len(elements) == 8
+        assert len(elements) == 9
         assert isinstance(elements[0], Text)
         assert elements[0].content == "This has "
         

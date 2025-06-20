@@ -181,6 +181,3 @@ class Document(BaseModel):
 ListItem.model_rebuild()
 Quote.model_rebuild()
 Align.model_rebuild()
-
-# Aliases for backward compatibility
-List = ListElement 

@@ -1,7 +1,7 @@
 """Tests for the main parser."""
 
 from markdown_parser import parse, Document
-from markdown_parser import Heading, Paragraph, List, Quote, CodeBlock, Table, HorizontalRule
+from markdown_parser import Heading, Paragraph, ListElement, Quote, CodeBlock, Table, HorizontalRule
 
 
 class TestParser:
@@ -56,11 +56,11 @@ This is another paragraph with **bold** and *italic* text."""
         doc = parse(markdown)
         assert len(doc.blocks) == 2
         
-        assert isinstance(doc.blocks[0], List)
+        assert isinstance(doc.blocks[0], ListElement)
         assert not doc.blocks[0].ordered
         assert len(doc.blocks[0].items) == 3
         
-        assert isinstance(doc.blocks[1], List)
+        assert isinstance(doc.blocks[1], ListElement)
         assert doc.blocks[1].ordered
         assert len(doc.blocks[1].items) == 3
     
@@ -150,7 +150,7 @@ End of document."""
         assert isinstance(doc.blocks[0], Heading)
         assert isinstance(doc.blocks[1], Paragraph)
         assert isinstance(doc.blocks[2], Heading)
-        assert isinstance(doc.blocks[3], List)
+        assert isinstance(doc.blocks[3], ListElement)
         assert isinstance(doc.blocks[4], CodeBlock)
         assert isinstance(doc.blocks[5], Quote)
         assert isinstance(doc.blocks[6], HorizontalRule)

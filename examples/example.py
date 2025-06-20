@@ -1,7 +1,7 @@
 """Example usage of the markdown parser."""
 
 from markdown_parser import parse, export_markdown
-from markdown_parser import Heading, Paragraph, List, CodeBlock, Table
+from markdown_parser import Heading, Paragraph, ListElement, CodeBlock, Table
 
 
 def main():
@@ -62,7 +62,7 @@ def hello_world():
         if isinstance(block, Heading):
             content_text = ''.join(elem.content for elem in block.content if hasattr(elem, 'content'))
             print(f"   Level {block.level}: {content_text}")
-        elif isinstance(block, List):
+        elif isinstance(block, ListElement):
             print(f"   {'Ordered' if block.ordered else 'Unordered'} list with {len(block.items)} items")
         elif isinstance(block, CodeBlock):
             print(f"   Language: {block.language or 'none'}")
